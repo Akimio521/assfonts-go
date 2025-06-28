@@ -1,0 +1,67 @@
+version: 2
+
+project_name: assfonts-go
+
+before:
+  hooks:
+    - apt update
+    - apt install -y pkg-config 
+
+builds:
+  - id: linux-amd64
+    main: ./cmd/assfont-go
+    binary: assfonts-go
+    goos:
+      - linux
+    goarch:
+      - amd64
+    env:
+      - CC=x86_64-linux-gnu-gcc
+      - CXX=x86_64-linux-gnu-g++
+      - PKG_CONFIG_PATH=/go/src/assfont-go/vcpkg_installed_linux_x64/x64-linux-release/lib/pkgconfig
+    ldflags:
+      - -s -w
+
+  # - id: darwin-arm64
+  #   main: ./cmd/assfont-go
+  #   binary: assfonts-go
+  #   goos:
+  #     - darwin
+  #   goarch:
+  #     - arm64
+  #   env:
+  #     - CC=oa64-clang
+  #     - CXX=oa64-clang++
+  #     - PKG_CONFIG_PATH=/go/src/assfont-go/vcpkg/installed/arm64-os/lib/pkgconfig
+  #   ldflags:
+  #     - -s -w
+
+archives:
+  - id: default
+    format: tar.gz
+    format_overrides:
+      - goos: windows
+        format: zip
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    files:
+      - README.md
+      - LICENSE*
+
+checksum:
+  name_template: "checksums.txt"
+snapshot:
+  version_template: "{{ incpatch .Version }}-next"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+
+release:
+  github:
+    owner: Akimio521
+    name: assfonts-go
+  prerelease: auto
+  draft: false

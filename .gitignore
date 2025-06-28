@@ -1,4 +1,5 @@
 DS_Store
 test_case
 
-vcpkg_installed/*
+vcpkg_installed*
+dist/*
