@@ -31,6 +31,9 @@ builds:
     dir: .
     main: ./cmd/assfont-go
     binary: assfonts-go
+    hooks:
+      pre:
+        - cmd: flock /tmp/vcpkg.lock /vcpkg/vcpkg install --triplet=x64-linux-release --x-install-root=/vcpkg_installed_linux_x64
     builder: go
     tool: go
     command: build
@@ -39,7 +42,43 @@ builds:
     env:
       - CC=x86_64-linux-gnu-gcc
       - CXX=x86_64-linux-gnu-g++
-      - PKG_CONFIG_PATH=/go/src/assfont-go/vcpkg_installed_linux_x64/x64-linux-release/lib/pkgconfig
+      - PKG_CONFIG_PATH=/vcpkg_installed_linux_x64/x64-linux-release/lib/pkgconfig
+  - id: windows-amd64
+    goos:
+      - windows
+    goarch:
+      - amd64
+    goamd64:
+      - v1
+    go386:
+      - sse2
+    goarm:
+      - "6"
+    goarm64:
+      - v8.0
+    gomips:
+      - hardfloat
+    goppc64:
+      - power8
+    goriscv64:
+      - rva20u64
+    targets:
+      - windows_amd64_v1
+    dir: .
+    main: ./cmd/assfont-go
+    binary: assfonts-go
+    hooks:
+      pre:
+        - cmd: flock /tmp/vcpkg.lock /vcpkg/vcpkg install --triplet=x64-mingw-static --x-install-root=/vcpkg_installed_x64-mingw-static
+    builder: go
+    tool: go
+    command: build
+    ldflags:
+      - -s -w
+    env:
+      - CC=x86_64-w64-mingw32-gcc
+      - CXX=x86_64-w64-mingw32-g++
+      - PKG_CONFIG_PATH=/vcpkg_installed_x64-mingw-static/x64-mingw-static/lib/pkgconfig
 archives:
   - id: default
     builds_info:
@@ -73,10 +112,6 @@ env_files:
   github_token: ~/.config/goreleaser/github_token
   gitlab_token: ~/.config/goreleaser/gitlab_token
   gitea_token: ~/.config/goreleaser/gitea_token
-before:
-  hooks:
-    - apt update
-    - apt install -y pkg-config
 source:
   name_template: '{{ .ProjectName }}-{{ .Version }}'
   format: tar.gz

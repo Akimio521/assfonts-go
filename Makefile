@@ -18,11 +18,10 @@ release-dry-run:
 		--rm \
 		--network=host \
 		-v /var/run/docker.sock:/var/run/docker.sock \
-		-v `pwd`:/go/src/$(PACKAGE_NAME) \
-		-w /go/src/$(PACKAGE_NAME) \
-		-e GOPROXY=https://goproxy.io,direct \
+		-v `pwd`:/workspace \
+		-w /workspace \
 		-e CGO_ENABLED=1 \
-		goreleaser/goreleaser-cross:v1.24.4 \
+		go-cross-builder:latest \
 		build --snapshot --clean
 
 .PHONY: release

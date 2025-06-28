@@ -2,15 +2,20 @@ version: 2
 
 project_name: assfonts-go
 
-before:
-  hooks:
-    - apt update
-    - apt install -y pkg-config 
+# before:
+#   hooks:
+#     - apt-get update
+#     - apt-get install -y pkg-config ca-certificates
+#     - git clone https://github.com/Microsoft/vcpkg.git /vcpkg
+#     - /vcpkg/bootstrap-vcpkg.sh
 
 builds:
   - id: linux-amd64
     main: ./cmd/assfont-go
     binary: assfonts-go
+    hooks:
+      pre:
+        - flock /tmp/vcpkg.lock /vcpkg/vcpkg install --triplet=x64-linux-release --x-install-root=/vcpkg_installed_linux_x64
     goos:
       - linux
     goarch:
@@ -18,7 +23,24 @@ builds:
     env:
       - CC=x86_64-linux-gnu-gcc
       - CXX=x86_64-linux-gnu-g++
-      - PKG_CONFIG_PATH=/go/src/assfont-go/vcpkg_installed_linux_x64/x64-linux-release/lib/pkgconfig
+      - PKG_CONFIG_PATH=/vcpkg_installed_linux_x64/x64-linux-release/lib/pkgconfig
+    ldflags:
+      - -s -w
+
+  - id: windows-amd64
+    main: ./cmd/assfont-go
+    binary: assfonts-go
+    hooks:
+      pre:
+        - flock /tmp/vcpkg.lock /vcpkg/vcpkg install --triplet=x64-mingw-static --x-install-root=/vcpkg_installed_x64-mingw-static
+    goos:
+      - windows
+    goarch:
+      - amd64
+    env:
+      - CC=x86_64-w64-mingw32-gcc
+      - CXX=x86_64-w64-mingw32-g++
+      - PKG_CONFIG_PATH=/vcpkg_installed_x64-mingw-static/x64-mingw-static/lib/pkgconfig
     ldflags:
       - -s -w
 
@@ -29,10 +51,13 @@ builds:
   #     - darwin
   #   goarch:
   #     - arm64
+  #   hooks:
+  #     pre:
+  #       - flock /tmp/vcpkg.lock /vcpkg/vcpkg install --triplet=arm64-osx-release --x-install-root=/vcpkg_installed_darwin_arm64
   #   env:
   #     - CC=oa64-clang
   #     - CXX=oa64-clang++
-  #     - PKG_CONFIG_PATH=/go/src/assfont-go/vcpkg/installed/arm64-os/lib/pkgconfig
+  #     - PKG_CONFIG_PATH=/vcpkg_installed_darwin_arm64/arm64-osx-release/lib/pkgconfig
   #   ldflags:
   #     - -s -w
 
